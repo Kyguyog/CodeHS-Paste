@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Ace Command Generator",
+  "version": "1.0",
+  "description": "Generates the Ace editor command for pasting code",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Generate Ace command"
+  }
+}
