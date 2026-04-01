@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Ace Command Generator",
+  "name": "CodeHS Paster",
   "version": "1.0",
-  "description": "Generates the Ace editor command for pasting code",
+  "description": "A chromium extension to let you paste anything into codeHS, even if disabled by teacher/question. You put the output into Chrome Dev Console",
   "action": {
     "default_popup": "popup.html",
     "default_title": "Generate Ace command"
