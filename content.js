@@ -1,15 +1,10 @@
-// Check toggle state before intercepting
-function isEnabled(cb) {
-  // MAIN world can't access chrome.storage, so store state in a DOM attribute
-  cb(document.documentElement.dataset.codehsPaster === "on");
-}
-
-// Listen for state changes from a separate isolated content script via DOM
-const observer = new MutationObserver(() => {});
-observer.observe(document.documentElement, { attributes: true });
-
 document.addEventListener("paste", (e) => {
-  if (document.documentElement.dataset.codehsPaster !== "on") return;
+  // Check toggle state from DOM attribute
+  if (document.documentElement.dataset.codehsPaster !== "on") {
+    // Auto mode fallback: check pageSpecific directly in case attribute hasn't synced yet
+    const autoShouldIntercept = window.pageSpecific?.preventCopyPaste === true;
+    if (!autoShouldIntercept) return;
+  }
 
   const aceEl = document.querySelector("#ace-editor") || document.querySelector(".ace_editor");
   if (!aceEl) return;

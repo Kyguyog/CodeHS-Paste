@@ -2,10 +2,11 @@
 <html>
 <head>
   <style>
-    body { font-family: Arial; width: 210px; padding: 12px; }
-    .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    label { font-size: 14px; }
-    .switch { position: relative; width: 44px; height: 24px; }
+    body { font-family: Arial; width: 220px; padding: 12px; }
+    .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .label { font-size: 13px; }
+    .label.dimmed { color: #aaa; }
+    .switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
       position: absolute; inset: 0;
@@ -19,28 +20,36 @@
     }
     input:checked + .slider { background: #4caf50; }
     input:checked + .slider:before { transform: translateX(20px); }
+    input:disabled + .slider { opacity: 0.4; cursor: not-allowed; }
+    .divider { border: none; border-top: 1px solid #e0e0e0; margin: 8px 0; }
     .indicator {
       display: flex; align-items: center; gap: 6px;
       font-size: 12px; color: #444;
       padding: 5px 8px; border-radius: 6px;
       background: #f0f0f0;
     }
-    .dot {
-      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-    }
-    .dot.blocked  { background: #e53935; }
-    .dot.allowed  { background: #43a047; }
-    .dot.unknown  { background: #aaa; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dot.blocked { background: #e53935; }
+    .dot.allowed { background: #43a047; }
+    .dot.unknown { background: #aaa; }
   </style>
 </head>
 <body>
   <div class="row">
-    <label>Paste intercept</label>
+    <span class="label" id="interceptLabel">Paste intercept</span>
     <label class="switch">
       <input type="checkbox" id="toggle">
       <span class="slider"></span>
     </label>
   </div>
+  <div class="row">
+    <span class="label">Auto mode</span>
+    <label class="switch">
+      <input type="checkbox" id="autoToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+  <hr class="divider">
   <div class="indicator">
     <div class="dot unknown" id="dot"></div>
     <span id="pasteStatus">Checking...</span>

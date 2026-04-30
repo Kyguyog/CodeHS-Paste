@@ -1,17 +1,33 @@
 const toggle = document.getElementById("toggle");
+const autoToggle = document.getElementById("autoToggle");
+const interceptLabel = document.getElementById("interceptLabel");
 const dot = document.getElementById("dot");
 const pasteStatus = document.getElementById("pasteStatus");
 
-// Load toggle state
-chrome.storage.local.get("enabled", ({ enabled }) => {
+function applyAutoMode(auto) {
+  toggle.disabled = auto;
+  interceptLabel.className = auto ? "label dimmed" : "label";
+}
+
+// Load saved states
+chrome.storage.local.get(["enabled", "autoMode"], ({ enabled, autoMode }) => {
   toggle.checked = !!enabled;
+  autoToggle.checked = !!autoMode;
+  applyAutoMode(!!autoMode);
+  checkStatus();
 });
 
 toggle.addEventListener("change", () => {
   chrome.storage.local.set({ enabled: toggle.checked });
 });
 
-// Read paste block status from the active tab's DOM attribute
+autoToggle.addEventListener("change", () => {
+  const auto = autoToggle.checked;
+  chrome.storage.local.set({ autoMode: auto });
+  applyAutoMode(auto);
+  if (auto) checkStatus(); // immediately apply based on current page status
+});
+
 async function checkStatus() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab || !tab.url?.includes("codehs.com")) {
@@ -27,6 +43,7 @@ async function checkStatus() {
   });
 
   const status = results?.[0]?.result;
+
   if (status === "blocked") {
     dot.className = "dot blocked";
     pasteStatus.textContent = "Paste blocked on this lesson";
@@ -36,6 +53,15 @@ async function checkStatus() {
   } else {
     dot.className = "dot unknown";
     pasteStatus.textContent = "Status unknown";
+    return;
+  }
+
+  // Auto mode: sync toggle to block status
+  const { autoMode } = await chrome.storage.local.get("autoMode");
+  if (autoMode) {
+    const shouldEnable = status === "blocked";
+    toggle.checked = shouldEnable;
+    chrome.storage.local.set({ enabled: shouldEnable });
   }
 }
 
