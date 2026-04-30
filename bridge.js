@@ -1,5 +1,5 @@
-// Runs in isolated world - can access chrome.storage
-// Relays enabled state to MAIN world via DOM attribute
+// Runs in isolated world - relays storage state to MAIN world via DOM attribute
+// Also detects if this lesson blocks pasting
 
 function applyState(enabled) {
   document.documentElement.dataset.codehsPaster = enabled ? "on" : "off";

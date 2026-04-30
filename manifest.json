@@ -19,7 +19,7 @@
     },
     {
       "matches": ["https://codehs.com/*"],
-      "js": ["content.js"],
+      "js": ["detector.js", "content.js"],
       "run_at": "document_idle",
       "world": "MAIN"
     }
