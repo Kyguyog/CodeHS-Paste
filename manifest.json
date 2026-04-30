@@ -2,13 +2,27 @@
   "manifest_version": 3,
   "name": "CodeHS Paster",
   "version": "2.0",
-  "description": "A chromium extension to let you paste anything into codeHS, even if disabled by teacher/question. Injects directly into the Ace editor with one click.",
+  "description": "A chromium extension to let you paste anything into codeHS, even if disabled by teacher/question.",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "host_permissions": [
     "https://codehs.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://codehs.com/*"],
+      "js": ["bridge.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://codehs.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "world": "MAIN"
+    }
   ],
   "action": {
     "default_popup": "popup.html",
