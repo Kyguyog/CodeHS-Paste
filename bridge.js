@@ -7,30 +7,26 @@ function applyEnabled(enabled) {
 }
 
 function syncAutoMode() {
-  try {
-    chrome.storage.local.get(["autoMode"], ({ autoMode }) => {
-      if (!autoMode) return;
-      const status = document.documentElement.dataset.codehsPasteStatus;
-      // Auto mode is not supported on Khan Academy
-      if (status === "khan") return;
-      if (status === "blocked") {
-        chrome.storage.local.set({ enabled: true });
-        applyEnabled(true);
-      } else if (status === "allowed") {
-        chrome.storage.local.set({ enabled: false });
-        applyEnabled(false);
-      }
-    });
-  } catch (_) {}
+  chrome.storage.local.get(["autoMode"], ({ autoMode }) => {
+    if (!autoMode) return;
+    const status = document.documentElement.dataset.codehsPasteStatus;
+    // Auto mode is not supported on Khan Academy
+    if (status === "khan") return;
+    if (status === "blocked") {
+      chrome.storage.local.set({ enabled: true });
+      applyEnabled(true);
+    } else if (status === "allowed") {
+      chrome.storage.local.set({ enabled: false });
+      applyEnabled(false);
+    }
+  });
 }
 
-try {
-  chrome.storage.local.get("enabled", ({ enabled }) => applyEnabled(!!enabled));
+chrome.storage.local.get("enabled", ({ enabled }) => applyEnabled(!!enabled));
 
-  chrome.storage.onChanged.addListener((changes) => {
-    if (changes.enabled) applyEnabled(changes.enabled.newValue);
-  });
-} catch (_) {}
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.enabled) applyEnabled(changes.enabled.newValue);
+});
 
 // Watch for detector.js writing the paste status, then apply auto mode
 const observer = new MutationObserver(() => syncAutoMode());
