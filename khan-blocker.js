@@ -16,8 +16,6 @@
       return _addEventListener.call(this, type, handler, options);
     }
 
-    // Wrap the handler: if our extension is enabled and it's a paste/ctrl+v
-    // keydown, run the handler in a context where preventDefault/stopPropagation are neutered.
     function wrappedHandler(e) {
       const enabled = document.documentElement.dataset.codehsPaster === "on";
       if (!enabled) {
@@ -28,18 +26,7 @@
       const isPaste = type === "paste";
 
       if (isCtrlV || isPaste) {
-        // Let our content.js handle it; neuter this site handler
-        const noop = () => {};
-        const fakeEvent = new Proxy(e, {
-          get(target, prop) {
-            if (prop === "preventDefault" || prop === "stopPropagation" || prop === "stopImmediatePropagation") {
-              return noop;
-            }
-            const val = target[prop];
-            return typeof val === "function" ? val.bind(target) : val;
-          }
-        });
-        handler.call(this, fakeEvent);
+        return; // Silently drop it — content.js handles the actual paste
       } else {
         handler.call(this, e);
       }
