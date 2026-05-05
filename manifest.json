@@ -6,22 +6,40 @@
   "permissions": [
     "activeTab",
     "scripting",
-    "storage"
+    "storage",
+    "clipboardRead"
   ],
   "host_permissions": [
-    "https://codehs.com/*"
+    "https://codehs.com/*",
+    "https://www.khanacademy.org/*"
   ],
   "content_scripts": [
     {
-      "matches": ["https://codehs.com/*"],
+      "matches": ["https://codehs.com/*", "https://www.khanacademy.org/*"],
       "js": ["bridge.js"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": true
     },
     {
       "matches": ["https://codehs.com/*"],
       "js": ["detector.js", "content.js"],
       "run_at": "document_idle",
-      "world": "MAIN"
+      "world": "MAIN",
+      "all_frames": true
+    },
+    {
+      "matches": ["https://www.khanacademy.org/*"],
+      "js": ["khan-blocker.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    },
+    {
+      "matches": ["https://www.khanacademy.org/*"],
+      "js": ["detector.js", "content.js"],
+      "run_at": "document_idle",
+      "world": "MAIN",
+      "all_frames": true
     }
   ],
   "action": {

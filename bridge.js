@@ -9,6 +9,8 @@ function syncAutoMode() {
   chrome.storage.local.get(["autoMode"], ({ autoMode }) => {
     if (!autoMode) return;
     const status = document.documentElement.dataset.codehsPasteStatus;
+    // Auto mode is not supported on Khan Academy
+    if (status === "khan") return;
     if (status === "blocked") {
       chrome.storage.local.set({ enabled: true });
       applyEnabled(true);

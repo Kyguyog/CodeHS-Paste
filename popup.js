@@ -1,12 +1,24 @@
 const toggle = document.getElementById("toggle");
 const autoToggle = document.getElementById("autoToggle");
 const interceptLabel = document.getElementById("interceptLabel");
+const autoLabel = document.getElementById("autoLabel");
 const dot = document.getElementById("dot");
 const pasteStatus = document.getElementById("pasteStatus");
 
 function applyAutoMode(auto) {
   toggle.disabled = auto;
   interceptLabel.className = auto ? "label dimmed" : "label";
+}
+
+function applyKhanMode(isKhan) {
+  autoToggle.disabled = isKhan;
+  autoLabel.className = isKhan ? "label dimmed" : "label";
+  if (isKhan && autoToggle.checked) {
+    // Turn off auto mode silently when on Khan (can't detect blocking)
+    autoToggle.checked = false;
+    chrome.storage.local.set({ autoMode: false });
+    applyAutoMode(false);
+  }
 }
 
 // Load saved states
@@ -25,14 +37,19 @@ autoToggle.addEventListener("change", () => {
   const auto = autoToggle.checked;
   chrome.storage.local.set({ autoMode: auto });
   applyAutoMode(auto);
-  if (auto) checkStatus(); // immediately apply based on current page status
+  if (auto) checkStatus();
 });
 
 async function checkStatus() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab || !tab.url?.includes("codehs.com")) {
+
+  const isCodeHS = tab?.url?.includes("codehs.com");
+  const isKhan = tab?.url?.includes("khanacademy.org");
+
+  if (!tab || (!isCodeHS && !isKhan)) {
     dot.className = "dot unknown";
-    pasteStatus.textContent = "Not on CodeHS";
+    pasteStatus.textContent = "Not on a supported site";
+    applyKhanMode(false);
     return;
   }
 
@@ -43,6 +60,15 @@ async function checkStatus() {
   });
 
   const status = results?.[0]?.result;
+
+  if (status === "khan") {
+    dot.className = "dot unknown";
+    pasteStatus.textContent = "Khan Academy (manual mode only)";
+    applyKhanMode(true);
+    return;
+  }
+
+  applyKhanMode(false);
 
   if (status === "blocked") {
     dot.className = "dot blocked";
