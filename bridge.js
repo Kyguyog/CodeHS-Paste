@@ -1,5 +1,6 @@
 // Isolated world: relay enabled state to MAIN world via DOM attribute
 // Also handles auto mode by watching the paste status attribute
+// Also relays clipboard reads from MAIN world (where clipboardRead permission is unreliable)
 
 function applyEnabled(enabled) {
   document.documentElement.dataset.codehsPaster = enabled ? "on" : "off";
@@ -30,3 +31,13 @@ chrome.storage.onChanged.addListener((changes) => {
 // Watch for detector.js writing the paste status, then apply auto mode
 const observer = new MutationObserver(() => syncAutoMode());
 observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-codehs-paste-status"] });
+
+// Clipboard relay: MAIN world requests clipboard text, isolated world reads it
+// and dispatches the result back. clipboardRead permission works here reliably.
+document.addEventListener("codehsRequestClipboard", async () => {
+  let text = "";
+  try {
+    text = await navigator.clipboard.readText();
+  } catch (_) {}
+  document.dispatchEvent(new CustomEvent("codehsClipboardResponse", { detail: { text } }));
+});
